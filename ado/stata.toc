@@ -1,0 +1,7 @@
+v 3
+d
+d SSIV - Shift-Share Instrumental Variables for Stata
+d
+d Distribution-Date: 20251204
+d
+p ssiv Shift-Share IV Estimation Package

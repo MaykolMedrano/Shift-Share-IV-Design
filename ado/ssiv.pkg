@@ -1,0 +1,29 @@
+v 3
+d
+d SSIV: Shift-Share Instrumental Variables for Stata
+d
+d Version 0.1.0
+d
+d Author: Claude Code
+d Distribution-Date: 20251204
+d
+d This package implements shift-share (Bartik) instrumental variables estimation
+d with modern inference methods and diagnostic checks, following best practices from
+d Borusyak, Hull & Jaravel (2025), Goldsmith-Pinkham et al. (2020), and
+d Adão, Kolesár & Morales (2019).
+d
+d Features:
+d   - Three estimation methods: classic, AKM, Borusyak
+d   - Automatic diagnostics (F-stat, Herfindahl, concentration)
+d   - Leave-one-out instruments
+d   - Alternative shares robustness
+d   - Flexible inference (robust, cluster)
+d
+d Requires: Stata version 18.0 or higher (may work with 16.0+)
+d
+d Keywords: instrumental variables, shift-share, Bartik, causal inference
+d
+d GitHub: https://github.com/MaykolMedrano/Shift-Share-IV-Design
+d
+f ssiv.ado
+f ../help/ssiv.sthlp
