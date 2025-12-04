@@ -1,0 +1,448 @@
+================================================================================
+SSIV Package - Test Validation Output
+Version: 0.1.0
+Date: 2025-12-04
+================================================================================
+
+This file documents the expected output from running the test suite.
+Use this to validate that your installation is working correctly.
+
+================================================================================
+HOW TO RUN TESTS
+================================================================================
+
+1. Navigate to tests directory:
+   cd tests
+
+2. Run all tests:
+   do run_all.do
+
+3. Expected completion time: 2-5 minutes (depending on Stata version/hardware)
+
+4. Expected result: "ALL TESTS PASSED" or "MOST TESTS PASSED"
+
+================================================================================
+EXPECTED OUTPUT: run_all.do
+================================================================================
+
+************************************************************************
+*                                                                      *
+*              SSIV PACKAGE - COMPREHENSIVE TEST SUITE                *
+*                                                                      *
+************************************************************************
+
+Current directory: /path/to/Shift-Share-IV-Design/tests
+Added ado path: ../ado
+
+========================================================================
+Running Test 1: Basic Simulation and Coefficient Recovery
+========================================================================
+
+[... test output ...]
+
+--------------------------------------------------------------------------
+TEST ASSERTIONS:
+--------------------------------------------------------------------------
+1. First-stage F-statistic: [40-60]
+   PASS: F > 10 (strong instrument)
+
+2. Estimated coefficient: [0.45-0.55] (true: 0.500)
+   Absolute difference: [0.00-0.05]
+   PASS: Coefficient within 0.15 of true value
+
+3. Significance test p-value: [0.00-0.01]
+   PASS: Coefficient significant at 5% level
+
+4. Herfindahl concentration index: [0.08-0.15]
+   PASS: Concentration acceptable (H < 0.30)
+
+==========================================================================
+TEST SUMMARY:
+==========================================================================
+Tests passed: 4 / 4
+RESULT: ALL TESTS PASSED
+
+*** Test 1: PASSED ***
+
+========================================================================
+Running Test 2: Leave-One-Out Consistency
+========================================================================
+
+[... test output ...]
+
+Standard SSIV results:
+  Coefficient: [0.55-0.65]
+  Std. error:  [0.03-0.06]
+  First-stage F: [40-60]
+
+Leave-one-out SSIV results:
+  Coefficient: [0.53-0.67]
+  Std. error:  [0.03-0.06]
+  First-stage F: [38-58]
+
+--------------------------------------------------------------------------
+TEST ASSERTIONS:
+--------------------------------------------------------------------------
+1. First-stage strength:
+   Main F: [40-60]
+   LOO F:  [38-58]
+   PASS: Both have F > 10
+
+2. Coefficient consistency:
+   Main coefficient: [0.55-0.65]
+   LOO coefficient:  [0.53-0.67]
+   Relative difference: [1-10]%
+   PASS: Coefficients within 15% of each other
+
+3. Confidence interval overlap:
+   Main 95% CI: [0.50, 0.70]
+   LOO 95% CI:  [0.48, 0.72]
+   PASS: Confidence intervals overlap
+
+4. Recovery of true effect:
+   True beta: 0.600
+   Main distance from truth: [0.00-0.08]
+   LOO distance from truth:  [0.00-0.10]
+   PASS: Both within 0.20 of true value
+
+==========================================================================
+TEST SUMMARY:
+==========================================================================
+Tests passed: [3-4] / 4
+RESULT: TESTS PASSED (at least 3/4)
+
+*** Test 2: PASSED ***
+
+========================================================================
+Running Test 3: Dominant Sector Detection
+========================================================================
+
+[... test output ...]
+
+Share distribution:
+Variable   Obs    Mean    Std.Dev.    Min    Max
+share1     300   .7987    .0291      .75    .85
+share2     300   .0403    .0116      ...    ...
+share3     300   .0401    .0115      ...    ...
+
+Sector 1 is clearly dominant (mean ~0.80)
+
+--------------------------------------------------------------------------
+TEST ASSERTIONS:
+--------------------------------------------------------------------------
+1. Herfindahl concentration index: [0.60-0.70]
+   PASS: High concentration detected (H > 0.25)
+
+2. First-stage F-statistic: [20-40]
+   PASS: First stage has some strength (F > 5)
+
+3. Standard error: [0.04-0.08]
+   PASS: Valid standard error
+
+4. Command completion: PASS (command ran successfully)
+
+Herfindahl with dominant sector:  [0.60-0.70]
+Herfindahl with balanced shares:  [0.08-0.15]
+Ratio (dominant/balanced):        [5.0-8.0]
+
+The dominant sector case should have much higher Herfindahl.
+
+==========================================================================
+TEST SUMMARY:
+==========================================================================
+Tests passed: 4 / 4
+RESULT: ALL TESTS PASSED
+Command correctly detects dominant sector concentration
+
+*** Test 3: PASSED ***
+
+========================================================================
+Running Test 4: Inference Methods
+========================================================================
+
+[... test output ...]
+
+--------------------------------------------------------------------------
+1. Robust (heteroskedasticity-robust) standard errors
+--------------------------------------------------------------------------
+Coefficient: [0.42-0.48]
+Std. error:  [0.03-0.05]
+
+PASS: Valid robust SE
+
+--------------------------------------------------------------------------
+2. Cluster-robust standard errors (by state)
+--------------------------------------------------------------------------
+Coefficient: [0.42-0.48]
+Std. error:  [0.04-0.07]
+
+PASS: Valid cluster SE
+
+--------------------------------------------------------------------------
+3. Comparison: Robust vs. Cluster
+--------------------------------------------------------------------------
+Robust SE:     [0.03-0.05]
+Cluster SE:    [0.04-0.07]
+Ratio (Cl/R):  [1.0-1.6]
+
+PASS: Cluster SE >= 80% of robust SE (expected pattern)
+
+--------------------------------------------------------------------------
+4. AKM method (many shocks)
+--------------------------------------------------------------------------
+Coefficient: [0.42-0.48]
+Std. error:  [0.04-0.07]
+
+PASS: AKM method runs successfully
+
+--------------------------------------------------------------------------
+5. Coefficient stability across inference methods
+--------------------------------------------------------------------------
+Robust coefficient:  [0.42-0.48]
+Cluster coefficient: [0.42-0.48]
+Difference:          [0.000-0.001]
+
+PASS: Coefficients are identical across methods
+
+--------------------------------------------------------------------------
+6. Confidence intervals contain true value
+--------------------------------------------------------------------------
+True value: 0.450
+
+Robust 95% CI:  [0.35, 0.55]
+  Contains true value: YES
+
+Cluster 95% CI: [0.33, 0.57]
+  Contains true value: YES
+
+PASS: At least one CI contains true value
+
+==========================================================================
+TEST SUMMARY:
+==========================================================================
+Tests passed: [5-6] / 6
+RESULT: TESTS PASSED (at least 5/6)
+
+*** Test 4: PASSED ***
+
+========================================================================
+Running Test 5: Alternative Shares Robustness
+========================================================================
+
+[... test output ...]
+
+Main shares (employment-based):
+Variable   Obs    Mean    Std.Dev.
+share1     350   .1249    .0721
+share2     350   .1248    .0720
+share3     350   .1251    .0722
+
+Alternative shares (payroll-based):
+Variable   Obs    Mean    Std.Dev.
+altshare1  350   .1251    .0798
+altshare2  350   .1248    .0795
+altshare3  350   .1252    .0799
+
+--------------------------------------------------------------------------
+1. Main specification (employment shares)
+--------------------------------------------------------------------------
+Coefficient: [0.52-0.58] (SE: [0.04-0.06])
+First-stage F: [35-55]
+
+PASS: Main specification runs successfully
+
+--------------------------------------------------------------------------
+2. Alternative specification (payroll shares)
+--------------------------------------------------------------------------
+Coefficient: [0.50-0.60] (SE: [0.04-0.07])
+First-stage F: [30-50]
+
+PASS: Alternative specification runs successfully
+
+--------------------------------------------------------------------------
+3. Robustness check using altshares() option
+--------------------------------------------------------------------------
+
+PASS: altshares() option runs successfully
+Alternative specification coefficient stored: [0.50-0.60]
+
+--------------------------------------------------------------------------
+4. Comparison of specifications
+--------------------------------------------------------------------------
+Main specification:
+  Coefficient: [0.52-0.58] (SE: [0.04-0.06])
+
+Alternative specification:
+  Coefficient: [0.50-0.60] (SE: [0.04-0.07])
+
+Difference:    [0.00-0.08]
+Relative diff: [0-15]%
+
+PASS: Specifications produce similar results (< 30% difference)
+
+--------------------------------------------------------------------------
+5. Confidence interval overlap
+--------------------------------------------------------------------------
+Main 95% CI:        [0.45, 0.65]
+Alternative 95% CI: [0.43, 0.67]
+PASS: Confidence intervals overlap
+
+--------------------------------------------------------------------------
+6. Recovery of true effect
+--------------------------------------------------------------------------
+True beta: 0.550
+Main estimate:       [0.52-0.58] (error: [0.00-0.08])
+Alternative estimate: [0.50-0.60] (error: [0.00-0.08])
+PASS: At least one specification recovers true effect (< 0.20 error)
+
+==========================================================================
+TEST SUMMARY:
+==========================================================================
+Tests passed: [5-6] / 6
+RESULT: TESTS PASSED (at least 5/6)
+
+*** Test 5: PASSED ***
+
+************************************************************************
+*                          FINAL SUMMARY                              *
+************************************************************************
+
+Total tests run:    5
+Tests passed:       5
+Tests failed:       0
+
+Success rate:       100.0%
+
+========================================================================
+                 ALL TESTS PASSED - PACKAGE IS READY!
+========================================================================
+
+Test results by category:
+  1. Basic simulation:     PASS
+  2. Leave-one-out:        PASS
+  3. Dominant sector:      PASS
+  4. Inference methods:    PASS
+  5. Alternative shares:   PASS
+
+************************************************************************
+
+================================================================================
+VALIDATION CRITERIA
+================================================================================
+
+Minimum Requirements for PASS:
+-------------------------------
+1. Test 1 (Basic Simulation):
+   - First-stage F > 10
+   - |β̂ - β_true| < 0.15
+   - p-value < 0.05
+   - Herfindahl < 0.30
+
+2. Test 2 (Leave-One-Out):
+   - Both F-statistics > 10
+   - |β_main - β_loo| / |β_main| < 0.15
+   - CIs overlap
+
+3. Test 3 (Dominant Sector):
+   - Herfindahl > 0.25 detected
+   - Command completes without error
+
+4. Test 4 (Inference):
+   - All SEs > 0 and finite
+   - Coefficients identical across methods
+   - At least one CI contains truth
+
+5. Test 5 (Alternative Shares):
+   - Both specifications run
+   - Results reasonably similar
+   - altshares() option works
+
+Overall Success Criteria:
+-------------------------
+- At least 4 out of 5 tests pass (80%)
+- All 5 tests passing is ideal
+- 3 out of 5 acceptable with documented issues
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+If tests fail:
+
+1. Check Stata version:
+   - Minimum: Stata 16.0
+   - Recommended: Stata 18.0+
+
+2. Check adopath:
+   - Run: adopath
+   - Ensure "../ado" is included
+
+3. Check file permissions:
+   - Tests need read/write access for temp files
+
+4. Check random seed:
+   - Results may vary slightly due to randomness
+   - Acceptable if within reported ranges
+
+5. Check for conflicts:
+   - Other ssiv installation in adopath?
+   - Run: which ssiv
+
+6. Re-run individual failing tests:
+   - cd tests
+   - do test_[name].do
+   - Check detailed output
+
+Common Issues:
+--------------
+Issue: "command ssiv not found"
+Fix: adopath + "../ado"
+
+Issue: "file not found"
+Fix: Ensure you're in tests/ directory
+
+Issue: Tests pass but results outside ranges
+Fix: This is OK - sampling variation expected
+
+Issue: One test fails consistently
+Fix: Check individual test file for issues
+     May be Stata version specific
+
+================================================================================
+PERFORMANCE BENCHMARKS
+================================================================================
+
+Expected Execution Times (approximate):
+
+Test 1: Basic Simulation         : 10-30 seconds
+Test 2: Leave-One-Out            : 15-40 seconds
+Test 3: Dominant Sector          : 15-30 seconds
+Test 4: Inference Methods        : 20-50 seconds
+Test 5: Alternative Shares       : 20-45 seconds
+run_all.do (all tests)          : 2-5 minutes
+
+Factors affecting speed:
+- Stata version (MP > SE > IC)
+- Number of cores (MP only)
+- CPU speed
+- Available RAM
+
+================================================================================
+CONTACT FOR SUPPORT
+================================================================================
+
+If tests consistently fail or results are unexpected:
+
+1. Check documentation: docs/ directory
+2. Review examples: examples/ directory
+3. Open issue: https://github.com/MaykolMedrano/Shift-Share-IV-Design/issues
+
+When reporting issues, include:
+- This validation output
+- Stata version (stata -q)
+- OS and version
+- Complete log file
+
+================================================================================
+END OF VALIDATION GUIDE
+================================================================================

@@ -1,0 +1,182 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-check:
+    name: Lint and Check Files
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check file structure
+      run: |
+        echo "Checking required files exist..."
+        test -f ado/ssiv.ado || { echo "Missing ado/ssiv.ado"; exit 1; }
+        test -f help/ssiv.sthlp || { echo "Missing help/ssiv.sthlp"; exit 1; }
+        test -f README.md || { echo "Missing README.md"; exit 1; }
+        test -f LICENSE || { echo "Missing LICENSE"; exit 1; }
+        test -f CHANGELOG.md || { echo "Missing CHANGELOG.md"; exit 1; }
+        echo "All required files present ✓"
+
+    - name: Check directory structure
+      run: |
+        echo "Checking directory structure..."
+        test -d ado || { echo "Missing ado/"; exit 1; }
+        test -d help || { echo "Missing help/"; exit 1; }
+        test -d examples || { echo "Missing examples/"; exit 1; }
+        test -d tests || { echo "Missing tests/"; exit 1; }
+        test -d docs || { echo "Missing docs/"; exit 1; }
+        echo "Directory structure OK ✓"
+
+    - name: Check Markdown files
+      uses: DavidAnson/markdownlint-action@v1
+      with:
+        files: '**/*.md'
+        config: '.markdownlint.json'
+      continue-on-error: true
+
+    - name: List example files
+      run: |
+        echo "Example files:"
+        ls -lh examples/
+
+    - name: List test files
+      run: |
+        echo "Test files:"
+        ls -lh tests/
+
+    - name: List documentation files
+      run: |
+        echo "Documentation files:"
+        ls -lh docs/
+
+    - name: Check for TODO or FIXME comments
+      run: |
+        echo "Searching for TODO/FIXME comments..."
+        grep -r "TODO\|FIXME" ado/ help/ || echo "No TODO/FIXME found ✓"
+      continue-on-error: true
+
+    - name: Validate .ado file syntax (basic)
+      run: |
+        echo "Checking .ado file has valid structure..."
+        grep -q "program define ssiv" ado/ssiv.ado || { echo "Missing program definition"; exit 1; }
+        grep -q "syntax" ado/ssiv.ado || { echo "Missing syntax statement"; exit 1; }
+        grep -q "end$" ado/ssiv.ado || { echo "Missing end statement"; exit 1; }
+        echo ".ado file structure valid ✓"
+
+  # Note: Actual Stata execution requires a Stata license
+  # This job is commented out but shows how to structure it if Stata is available
+  #
+  # stata-tests:
+  #   name: Run Stata Tests
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: stata/stata:18
+  #
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v3
+  #
+  #   - name: Run test suite
+  #     run: |
+  #       cd tests
+  #       stata-mp -b do run_all.do
+  #       cat run_all.log
+  #
+  #   - name: Check test results
+  #     run: |
+  #       grep -q "ALL TESTS PASSED" tests/run_all.log || exit 1
+
+  documentation-check:
+    name: Documentation Completeness
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check README completeness
+      run: |
+        echo "Checking README.md..."
+        grep -q "Installation" README.md || { echo "Missing Installation section"; exit 1; }
+        grep -q "Quick Start" README.md || { echo "Missing Quick Start section"; exit 1; }
+        grep -q "Examples" README.md || { echo "Missing Examples section"; exit 1; }
+        grep -q "Citation" README.md || { echo "Missing Citation section"; exit 1; }
+        grep -q "References" README.md || { echo "Missing References section"; exit 1; }
+        echo "README.md complete ✓"
+
+    - name: Check documentation files
+      run: |
+        echo "Checking docs/ directory..."
+        test -f docs/methodology.md || { echo "Missing methodology.md"; exit 1; }
+        test -f docs/assumptions.md || { echo "Missing assumptions.md"; exit 1; }
+        test -f docs/borusyak_checklist.md || { echo "Missing borusyak_checklist.md"; exit 1; }
+        echo "Documentation files complete ✓"
+
+    - name: Check examples exist
+      run: |
+        echo "Checking examples..."
+        test -f examples/example_sim_basic.do || { echo "Missing basic example"; exit 1; }
+        test -f examples/example_immigration.do || { echo "Missing immigration example"; exit 1; }
+        test -f examples/example_industry_growth.do || { echo "Missing industry example"; exit 1; }
+        echo "All examples present ✓"
+
+    - name: Check tests exist
+      run: |
+        echo "Checking tests..."
+        test -f tests/test_sim_basic.do || { echo "Missing basic test"; exit 1; }
+        test -f tests/test_loo.do || { echo "Missing LOO test"; exit 1; }
+        test -f tests/test_dominant_sector.do || { echo "Missing dominant sector test"; exit 1; }
+        test -f tests/test_inference.do || { echo "Missing inference test"; exit 1; }
+        test -f tests/test_altshares.do || { echo "Missing altshares test"; exit 1; }
+        test -f tests/run_all.do || { echo "Missing run_all.do"; exit 1; }
+        echo "All tests present ✓"
+
+  version-check:
+    name: Version Consistency
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Extract versions
+      run: |
+        echo "Extracting version numbers..."
+        ADO_VERSION=$(grep "^*! ssiv v" ado/ssiv.ado | sed 's/.*v\([0-9.]*\).*/\1/')
+        README_VERSION=$(grep "version-.*-blue" README.md | sed 's/.*version-\([0-9.]*\)-.*/\1/')
+        CHANGELOG_VERSION=$(grep "^\[.*\].*202" CHANGELOG.md | head -1 | sed 's/.*\[\(.*\)\].*/\1/')
+
+        echo "ADO version: $ADO_VERSION"
+        echo "README version: $README_VERSION"
+        echo "CHANGELOG version: $CHANGELOG_VERSION"
+
+        if [ "$ADO_VERSION" != "$README_VERSION" ]; then
+          echo "Version mismatch: ADO ($ADO_VERSION) vs README ($README_VERSION)"
+          exit 1
+        fi
+
+        echo "Version consistency check passed ✓"
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [lint-and-check, documentation-check, version-check]
+
+    steps:
+    - name: All checks passed
+      run: |
+        echo "=========================================="
+        echo "  All CI checks passed successfully! ✓"
+        echo "=========================================="
+        echo ""
+        echo "Note: Stata-based tests must be run locally:"
+        echo "  cd tests && stata-mp -b do run_all.do"
+        echo ""
